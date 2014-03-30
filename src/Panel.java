@@ -1,7 +1,7 @@
 /*
 Filename: Panel.java
 Author: Sam Prestwood
-Last Updated: 2014-02-16
+Last Updated: 2014-03-30
 Abstract: Draws to the screen and handles the timing of everything.
  */
 
@@ -11,11 +11,12 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
+import java.util.Stack;
 
 public class Panel extends JPanel {
 	// constants
-	private int FRAME_PERIOD = 25; // in milliseconds
-	private String IMAGE = "img/apple.jpg";
+	private int FRAME_PERIOD = 1000; // in milliseconds
+	private String IMAGE = "img/gandhi.jpg";
 
 	// fields
 	private int width;
@@ -26,7 +27,7 @@ public class Panel extends JPanel {
 	private ImageProcessor imgProc;
 	private int[][] ditheredImgBW;
 	private int[][][] ditheredImgRGB;
-	
+	private Stack<Point> TSPPath;
 	private BufferedImage tmpImg;
 
 	// Class constructor; instantiates all local variables
@@ -42,8 +43,12 @@ public class Panel extends JPanel {
 		
 		// prepare our image:
 		imgProc = new ImageProcessor(IMAGE);
-		tmpImg = imgProc.resize(50);
+		tmpImg = imgProc.resize(150);
 		ditheredImgBW = imgProc.ditherBW();
+		
+		// create path:
+		TSPSolver solv = new TSPSolver(ditheredImgBW);
+		TSPPath = solv.createPathClosestNeighbor();
 		
 		// program clock; defines and controls the framerate
 		clock = new Timer(FRAME_PERIOD, new ActionsToPerform());
@@ -64,26 +69,40 @@ public class Panel extends JPanel {
 			screenBuffer.setColor(Color.white);			
 			screenBuffer.fillRect(0, 0, width, height);
 			
-			//screenBuffer.drawImage(tmpImg, 0, 0, null);
+			// draw dithered pixels to screen
+			// drawDitheredImgBW(2, 5, Color.black, 10, 10);
 			
-			// draw ditheredImgBW to screen
-			drawDitheredImgBW(5, 15, Color.black);
+			// draw TSP path:
+			drawTSPPath(5, 10, 10, Color.red);
 			
 			// write to buffer:
 			repaint();
 		}
 	}
 	
+	// draws the calculated TSP path (TSPPath) to the screen
+	public void drawTSPPath(int spacing, int xPad, int yPad, Color color) {
+		screenBuffer.setColor(color);
+		Point prevPoint = TSPPath.peek();
+		for(Point p : TSPPath) {
+			screenBuffer.drawLine(xPad + (int)(prevPoint.getX() * spacing),
+								  yPad + (int)(prevPoint.getY() * spacing), 
+								  xPad + (int)(p.getX() * spacing),
+								  yPad + (int)(p.getY() *spacing));
+			prevPoint = p;
+		}
+	}
+
 	// draws ditheredImgBW to screenBuffer as a series of circles (blobs). The
 	// circles have a radius and a spacing between each of them because it is 
 	// assumed that the dithered image will be of a low resolution and thus 
 	// needs to be blown up to be fully seen. Circles are filled in with color.
-	public void drawDitheredImgBW(int radius, int spacing, Color color) {
-		int xPad = 10, yPad = 10;
+	public void drawDitheredImgBW(int radius, int spacing, Color color, 
+			int xPad, int yPad) {
 		screenBuffer.setColor(color);
 		for(int r = 0; r < ditheredImgBW.length; r++) {
 			for(int c = 0; c < ditheredImgBW[r].length; c++) {
-				if(ditheredImgBW[r][c] != 255)
+				if(ditheredImgBW[r][c] == 0)
 					screenBuffer.fillOval(xPad + c*spacing, yPad + r*spacing, 
 							radius*2, radius*2);
 				

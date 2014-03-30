@@ -1,7 +1,7 @@
 /*
 Filename: ImageProcessor.java
 Author: Sam Prestwood
-Last Updated: 2014-03-14
+Last Updated: 2014-03-30
 Abstract: Reads in an image, resizes it, and dithers it.
  */
 
