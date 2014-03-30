@@ -15,6 +15,7 @@ import java.awt.image.BufferedImage;
 public class Panel extends JPanel {
 	// constants
 	private int FRAME_PERIOD = 25; // in milliseconds
+	private String IMAGE = "img/apple.jpg";
 
 	// fields
 	private int width;
@@ -22,7 +23,11 @@ public class Panel extends JPanel {
 	private BufferedImage screen;
 	private Graphics screenBuffer;
 	private Timer clock;
-	private int xPos = 0, yPos = 0;
+	private ImageProcessor imgProc;
+	private int[][] ditheredImgBW;
+	private int[][][] ditheredImgRGB;
+	
+	private BufferedImage tmpImg;
 
 	// Class constructor; instantiates all local variables
 	public Panel(int w, int h) {
@@ -34,7 +39,12 @@ public class Panel extends JPanel {
 
 		// a java formality that allows us to do ``speedy'' graphics
 		screenBuffer = screen.getGraphics();
-
+		
+		// prepare our image:
+		imgProc = new ImageProcessor(IMAGE);
+		tmpImg = imgProc.resize(50);
+		ditheredImgBW = imgProc.ditherBW();
+		
 		// program clock; defines and controls the framerate
 		clock = new Timer(FRAME_PERIOD, new ActionsToPerform());
 		clock.start();
@@ -50,23 +60,34 @@ public class Panel extends JPanel {
 	// most of the stuff in this method.
 	private class ActionsToPerform implements ActionListener {
 		public void actionPerformed(ActionEvent e) {
-			System.out.println("I'm printing out every " + FRAME_PERIOD
-					+ "ms, or at " + (1000.0 / FRAME_PERIOD) + " fps.");
-			
-			// white background
+			// draw a white background
 			screenBuffer.setColor(Color.white);			
 			screenBuffer.fillRect(0, 0, width, height);
 			
-			// red box:
-			screenBuffer.setColor(Color.red);
-			screenBuffer.fillRect(xPos, yPos, 10, 10);
+			//screenBuffer.drawImage(tmpImg, 0, 0, null);
 			
-			// update positions
-			xPos++;
-			yPos++;
+			// draw ditheredImgBW to screen
+			drawDitheredImgBW(5, 15, Color.black);
 			
 			// write to buffer:
 			repaint();
+		}
+	}
+	
+	// draws ditheredImgBW to screenBuffer as a series of circles (blobs). The
+	// circles have a radius and a spacing between each of them because it is 
+	// assumed that the dithered image will be of a low resolution and thus 
+	// needs to be blown up to be fully seen. Circles are filled in with color.
+	public void drawDitheredImgBW(int radius, int spacing, Color color) {
+		int xPad = 10, yPad = 10;
+		screenBuffer.setColor(color);
+		for(int r = 0; r < ditheredImgBW.length; r++) {
+			for(int c = 0; c < ditheredImgBW[r].length; c++) {
+				if(ditheredImgBW[r][c] != 255)
+					screenBuffer.fillOval(xPad + c*spacing, yPad + r*spacing, 
+							radius*2, radius*2);
+				
+			}
 		}
 	}
 }
