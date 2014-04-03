@@ -93,12 +93,17 @@ public class TSPSolver {
 	}
 	
 	public boolean sameSlope(Point[] edge1, Point[] edge2){
+<<<<<<< HEAD
 		double denom1 = edge1[1].getX() - edge1[0].getX();
 		double denom2 = edge2[1].getX() - edge2[0].getX();
 		if(denom1 == 0 && denom1 == denom2)
 			return true;
 		double slope1 = (edge1[1].getY() - edge1[0].getY())/denom1;
 		double slope2 = (edge2[1].getY() - edge2[0].getY())/denom2;
+=======
+		double slope1 = (edge1[1].getY() - edge1[0].getY())/(edge1[1].getX() - edge1[0].getX());
+		double slope2 = (edge2[1].getY() - edge2[0].getY())/(edge2[1].getX() - edge2[0].getX());
+>>>>>>> 1f46a6b7983510fff6835aec61313341ed752865
 		return slope1==slope2 || slope1==1/slope2;
 	}
 
@@ -125,10 +130,13 @@ public class TSPSolver {
 		}
 		return path;
 	}
+<<<<<<< HEAD
 	
 	private double distance(Point p1, Point p2){
 		return Math.sqrt((p1.getX()-p2.getX())*(p1.getX()-p2.getX()) + (p1.getY()-p2.getY())*(p1.getY()-p2.getY()));
 	}
+=======
+>>>>>>> 1f46a6b7983510fff6835aec61313341ed752865
 
 	public ArrayList<Point> removeIntersections(
 			ArrayList<Point> p) {
@@ -151,11 +159,17 @@ public class TSPSolver {
 						edge2[1].getY());
 				
 				//System.out.println(sharePt + " " + cross);
+<<<<<<< HEAD
 				if (!equals(edge1, edge2) && !sharePt && !sameSlope(edge1, edge2) && cross) {
+=======
+				if (// !equals(edge1, edge2)
+				!sharePt && cross) {
+>>>>>>> 1f46a6b7983510fff6835aec61313341ed752865
 					System.out.println(path.get(x) + " " + path.get(x+1) + " "
 							+ path.get(y) + " " + path.get(y+1));
 					//swapEndPoints(edge1[1], edge2[1], path);
 					if(sameSlope(edge1, edge2)){
+<<<<<<< HEAD
 						//if(distance(edge1[0], edge2[0]) > distance(edge1[0], edge2[1])){
 						System.out.println("Same slope");
 							Point tmp = path.get(x+1);
@@ -167,6 +181,9 @@ public class TSPSolver {
 							path.set(x+1, path.get(y+1));
 							path.set(y+1, tmp);
 						}*/
+=======
+						
+>>>>>>> 1f46a6b7983510fff6835aec61313341ed752865
 					}
 					else{
 						Point tmp = path.get(x+1);
