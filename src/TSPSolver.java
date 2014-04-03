@@ -81,34 +81,69 @@ public class TSPSolver {
 
 	// checks colinearity of points...?
 	public boolean sharePoint(Point[] edge1, Point[] edge2) {
-		return edge1[0].getX() == edge2[0].getX()
+		/*return edge1[0].getX() == edge2[0].getX()
 				|| edge1[0].getX() == edge2[1].getX()
 				|| edge1[0].getY() == edge2[0].getY()
 				|| edge1[0].getY() == edge2[1].getY()
 				|| edge1[1].getX() == edge2[0].getX()
 				|| edge1[1].getX() == edge2[1].getX()
 				|| edge1[1].getY() == edge2[0].getY()
-				|| edge1[1].getY() == edge2[1].getY();
+				|| edge1[1].getY() == edge2[1].getY();*/
+		return edge1[0].equals(edge2[0]) || edge1[0].equals(edge2[1]) || edge1[1].equals(edge2[0]) || edge1[1].equals(edge2[1]);
+	}
+	
+	public boolean sameSlope(Point[] edge1, Point[] edge2){
+		double denom1 = edge1[1].getX() - edge1[0].getX();
+		double denom2 = edge2[1].getX() - edge2[0].getX();
+		if(denom1 == 0 && denom1 == denom2)
+			return true;
+		double slope1 = (edge1[1].getY() - edge1[0].getY())/denom1;
+		double slope2 = (edge2[1].getY() - edge2[0].getY())/denom2;
+		return slope1==slope2 || slope1==1/slope2;
 	}
 
-	public void swapEndPoints(Point[] edge1, Point[] edge2) {
-		Point tmp = edge1[1]; // (1, 3) t=4
-		edge1[1] = edge2[0]; // (2, 4)
-		edge2[0] = tmp;
+	public void swapEndPoints(Point p1, Point p2, ArrayList<Point> path) {
+		Point tmp = p1; // (1, 3) t=4
+		p1 = p2; // (2, 4)
+		p2 = tmp;
+		//Now flip the path between these edges 
+		//Need to get path in order, not just screwed up set of edges
+		
 		//tmp = edge2[0];
 		//edge2[0] = edge2[1];
 		//edge2[1] = tmp;
 	}
+	
+	public ArrayList<Point> reverseBetween(Point p1, Point p2, ArrayList<Point> path){
+		ArrayList<Point> tempList = new ArrayList<Point>();
+		for(int x = path.indexOf(p1)+1; x < path.indexOf(p2); x++){
+			tempList.add(0, path.get(x));		
+		}
+		for(int x = path.indexOf(p1)+1; x < path.indexOf(p2); x++){
+			path.set(x, tempList.get(0));
+			tempList.remove(0);
+		}
+		return path;
+	}
+	
+	private double distance(Point p1, Point p2){
+		return Math.sqrt((p1.getX()-p2.getX())*(p1.getX()-p2.getX()) + (p1.getY()-p2.getY())*(p1.getY()-p2.getY()));
+	}
 
-	public ArrayList<Point[]> removeIntersections(
-			ArrayList<Point[]> convertedPath) {
+	public ArrayList<Point> removeIntersections(
+			ArrayList<Point> p) {
 
 		// ArrayList<Point[]> convertedPath = stack2List(path);
-
+		ArrayList<Point> path = new ArrayList<Point>(p);
+		
 		System.out.println("Starting to remove the intersections");
 
-		for (Point[] edge1 : convertedPath) {
-			for (Point[] edge2 : convertedPath) {
+		//for (Point[] edge1 : convertedPath) {
+			//for (Point[] edge2 : convertedPath) {
+		for(int x = 0; x < path.size()-1; x++){
+			Point[] edge1 = {path.get(x), path.get(x+1)};
+			for(int y = 0; y < path.size()-1; y++){
+				Point[] edge2 = {path.get(y), path.get(y+1)};
 				boolean sharePt = sharePoint(edge1, edge2);
 				boolean cross = Line2D.linesIntersect(edge1[0].getX(),
 						edge1[0].getY(), edge1[1].getX(), edge1[1].getY(),
@@ -116,23 +151,40 @@ public class TSPSolver {
 						edge2[1].getY());
 				
 				//System.out.println(sharePt + " " + cross);
-				if (// !equals(edge1, edge2)
-				!sharePt && cross) {
-					System.out.println(edge1[0] + " " + edge1[1] + " "
-							+ edge2[0] + " " + edge2[1]);
-					swapEndPoints(edge1, edge2);
-					System.out.println(edge1[0] + " " + edge1[1] + " "
-							+ edge2[0] + " " + edge2[1]);
-
-					return convertedPath;
+				if (!equals(edge1, edge2) && !sharePt && !sameSlope(edge1, edge2) && cross) {
+					System.out.println(path.get(x) + " " + path.get(x+1) + " "
+							+ path.get(y) + " " + path.get(y+1));
+					//swapEndPoints(edge1[1], edge2[1], path);
+					if(sameSlope(edge1, edge2)){
+						//if(distance(edge1[0], edge2[0]) > distance(edge1[0], edge2[1])){
+						System.out.println("Same slope");
+							Point tmp = path.get(x+1);
+							path.set(x+1, path.get(y+1));
+							path.set(y+1, tmp);
+						/*}
+						else{
+							Point tmp = path.get(x+1);
+							path.set(x+1, path.get(y+1));
+							path.set(y+1, tmp);
+						}*/
+					}
+					else{
+						Point tmp = path.get(x+1);
+						path.set(x+1, path.get(y));
+						path.set(y, tmp);
+					}
+					path = reverseBetween(path.get(x+1), path.get(y), path);
+					System.out.println(path.get(x) + " " + path.get(x+1) + " "
+							+ path.get(y) + " " + path.get(y+1));
+					return path;
 				}
 			}
 
 		}
 
-		System.out.println("Done removing intersections");
+		//System.out.println("Done removing intersections");
 
-		return convertedPath;
+		return path;
 
 		/*
 		 * ArrayList<Point[]> convertedPath = stack2List(path);
