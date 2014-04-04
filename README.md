@@ -9,4 +9,4 @@ Below is an example of a completed TSP approximation using our program:
 
 ![gandhi!](example.png)
 
-Feel free to use this code, but just be sure to reference us!
+Feel free to use this code, but just be sure to reference us! 
