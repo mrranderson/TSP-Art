@@ -1,7 +1,7 @@
 /*
 Filename: Panel.java
-Author: Sam Prestwood
-Last Updated: 2014-03-30
+Author: Sam Prestwood and Ryan Anderson
+Last Updated: 2014-04-03
 Abstract: Draws to the screen and handles the timing of everything.
  */
 
@@ -16,8 +16,8 @@ import java.util.Stack;
 
 public class Panel extends JPanel {
 	// constants
-	private int FRAME_PERIOD = 50; // in milliseconds
-	private String IMAGE = "img/eye.jpg";
+	private int FRAME_PERIOD = 10; // in milliseconds
+	private String IMAGE = "img/gandhi.jpg";
 
 	// fields
 	private int width;
@@ -47,7 +47,7 @@ public class Panel extends JPanel {
 
 		// prepare our image:
 		imgProc = new ImageProcessor(IMAGE);
-		tmpImg = imgProc.resize(130);
+		tmpImg = imgProc.resize(150);
 		ditheredImgBW = imgProc.ditherBW();
 
 		// create path:
@@ -93,21 +93,11 @@ public class Panel extends JPanel {
 		}
 	}
 
-	// draws the calculated TSP path (TSPPath) to the screen
+	// draws the calculated TSP path (TSPPath) to the screen, each frame
+	// removing an intersection
 	public void drawTSPPath(int spacing, int xPad, int yPad, Color color) {
-		/*screenBuffer.setColor(color);
-		Point prevPoint = TSPPath.peek();
-		for(Point p : TSPPath) {
-			screenBuffer.drawLine(xPad + (int)(prevPoint.getX() * spacing),
-								  yPad + (int)(prevPoint.getY() * spacing), 
-								  xPad + (int)(p.getX() * spacing),
-								  yPad + (int)(p.getY() *spacing));
-			prevPoint = p;
-		}*/
-
-		//fixedPath = solv.removeIntersections(fixedPath);
+		
 		points = solv.removeIntersections(points);
-		//System.out.println(points.size());
 		screenBuffer.setColor(color);
 		Point prevPoint = points.get(0);
 		for(Point p : points) {
